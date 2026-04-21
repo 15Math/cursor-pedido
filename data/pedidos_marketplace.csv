@@ -1,0 +1,5 @@
+order-id;order-item-id;purchase-date;payments-date;buyer-email;buyer-name;cpf;buyer-phone-number;sku;product-name;quantity-purchased;currency;item-price;ship-service-level;recipient-name;ship-address-1;ship-address-2;ship-address-3;ship-city;ship-state;ship-postal-code;ship-country;ioss-number
+abc123;item001;2026-04-21;2026-04-21;cliente1@email.com;João Silva;123.456.789-00;1199999999;roupa123rio;Camisa;2;BRL;50,00;Standard;João Silva;Rua A;Apt 1;Bairro;Rio;RJ;20000-000;Brasil;N/A
+abc123;item002;2026-04-21;2026-04-21;cliente1@email.com;João Silva;123.456.789-00;1199999999;brinq789rio;Jogo;1;BRL;100,00;Standard;João Silva;Rua A;Apt 1;Bairro;Rio;RJ;20000-000;Brasil;N/A
+def456;item003;2026-04-21;2026-04-21;cliente2@email.com;Maria Souza;987.654.321-11;2198888888;eletr101;Celular;15;BRL;1500,00;Standard;Maria Souza;Rua B;Apt 2;Bairro;Rio;RJ;20000-000;Brasil;N/A
+ghi789;item004;2026-04-21;2026-04-21;cliente3@email.com;Pedro Alves;111.222.333-44;3197777777;livro001;Livro SQL;3;BRL;80,00;Standard;Pedro Alves;Rua C;Casa;Centro;Belo Horizonte;MG;30000-000;Brasil;N/A
