@@ -1,29 +1,29 @@
--- Limpa as tabelas na ordem correta para evitar erros de chave estrangeira
+-- Limpa o ambiente para novos testes
 DROP TABLE IF EXISTS itens_pedido CASCADE;
 DROP TABLE IF EXISTS pedidos CASCADE;
 DROP TABLE IF EXISTS produtos CASCADE;
 
--- Tabela de Produtos
+-- Tabela de Produtos: O ID é o SKU (Texto)
 CREATE TABLE produtos (
-    id SERIAL PRIMARY KEY,
+    id VARCHAR(50) PRIMARY KEY, 
     nome VARCHAR(100) NOT NULL,
     estoque NUMERIC(10, 2) NOT NULL DEFAULT 0,
     CONSTRAINT chk_estoque_positivo CHECK (estoque >= 0)
 );
 
--- Tabela de Pedidos
+-- Tabela de Pedidos: O ID é o Código do Pedido do CSV
 CREATE TABLE pedidos (
-    id SERIAL PRIMARY KEY,
-    data_pedido TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status VARCHAR(20) DEFAULT 'Pendente',
-    CONSTRAINT chk_status_pedido CHECK (status IN ('Pendente', 'Atendido', 'Cancelado'))
+    id TEXT PRIMARY KEY,
+    data_pedido TIMESTAMP,
+    status TEXT CHECK (status IN ('PROCESSADO', 'SEM ESTOQUE', 'PENDENTE', 'CANCELADO')), -- Adicione aqui
+    valor_total NUMERIC DEFAULT 0
 );
 
--- Tabela de Itens do Pedido
+-- Tabela de Itens: Faz a ponte entre Pedido e SKU
 CREATE TABLE itens_pedido (
     id SERIAL PRIMARY KEY,
-    pedido_id INT NOT NULL REFERENCES pedidos(id) ON DELETE CASCADE,
-    produto_id INT NOT NULL REFERENCES produtos(id),
+    pedido_id VARCHAR(50) NOT NULL REFERENCES pedidos(id) ON DELETE CASCADE,
+    produto_id VARCHAR(50) NOT NULL REFERENCES produtos(id),
     quantidade NUMERIC(10, 2) NOT NULL,
     CONSTRAINT chk_quantidade_positiva CHECK (quantidade > 0)
 );

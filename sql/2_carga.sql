@@ -1,24 +1,40 @@
--- Inserindo Produtos no Estoque
-INSERT INTO produtos (nome, estoque) VALUES 
-('Notebook', 10),
-('Mouse', 50),
-('Teclado', 2);
+-- 1. Limpa dados anteriores (Respeitando a hierarquia de chaves estrangeiras)
+TRUNCATE itens_pedido, pedidos, produtos CASCADE;
 
--- Criando 3 Pedidos (Todos começam como 'Pendente')
-INSERT INTO pedidos (status) VALUES ('Pendente'); -- Pedido 1 (Vai ser atendido)
-INSERT INTO pedidos (status) VALUES ('Pendente'); -- Pedido 2 (NÃO vai ser atendido, falta teclado)
-INSERT INTO pedidos (status) VALUES ('Pendente'); -- Pedido 3 (Vai ser atendido)
+-- 2. Tabela persistente para que o próximo script (psql) consiga ler
+DROP TABLE IF EXISTS temp_pedidos_dia;
+CREATE UNLOGGED TABLE temp_pedidos_dia (
+    codigoPedido TEXT,
+    dataPedido TEXT,
+    SKU TEXT,
+    UPC TEXT,
+    nomeProduto TEXT,
+    qtd INTEGER,
+    valor TEXT,
+    frete TEXT,
+    email TEXT,
+    codigoComprador TEXT,
+    nomeComprador TEXT,
+    endereco TEXT,
+    CEP TEXT,
+    UF TEXT,
+    pais TEXT
+);
 
--- Itens do Pedido 1 (Tem estoque de tudo)
-INSERT INTO itens_pedido (pedido_id, produto_id, quantidade) VALUES 
-(1, 1, 2),  -- Quer 2 Notebooks (Tem 10)
-(1, 2, 5);  -- Quer 5 Mouses (Tem 50)
+-- 3. Carga do arquivo
+-- Dica: use barras normais (/) no caminho para evitar problemas de escape no Windows
+\copy temp_pedidos_dia FROM 'C:/Users/Windows 11/Documents/Matheus/MyReps/ETL-Pedidos-Java/data/pedidos.txt' WITH (FORMAT CSV, DELIMITER ';', HEADER, ENCODING 'UTF8');
 
--- Itens do Pedido 2 (FALTA ESTOQUE)
-INSERT INTO itens_pedido (pedido_id, produto_id, quantidade) VALUES 
-(2, 1, 1),  -- Quer 1 Notebook (Tem)
-(2, 3, 5);  -- Quer 5 Teclados (Só tem 2 no estoque!)
+-- 4. Limpeza de decimais (Garante que o REPLACE funcione antes do cast para Numeric no script 3)
+UPDATE temp_pedidos_dia SET 
+    valor = REPLACE(valor, ',', '.'),
+    frete = REPLACE(frete, ',', '.');
 
--- Itens do Pedido 3 (Tem estoque)
-INSERT INTO itens_pedido (pedido_id, produto_id, quantidade) VALUES 
-(3, 2, 10); -- Quer 10 Mouses (Tem 45 restantes após o Pedido 1)
+-- 5. Inserção de produtos conhecidos para os testes de sucesso
+INSERT INTO produtos (id, nome, estoque) VALUES 
+('roupa123rio', 'camisa', 10),
+('brinq789rio', 'jogo', 5)
+ON CONFLICT (id) DO NOTHING;
+
+-- Feedback visual no terminal
+SELECT 'Carga inicial concluída' as status;
