@@ -1,6 +1,5 @@
 DO $$
 DECLARE
-    -- Declaração dos cursores para iteração de pedidos pendentes e seus respectivos itens
     c_pedidos CURSOR FOR 
         SELECT order_id, valor_total 
         FROM pedidos 
@@ -19,10 +18,6 @@ DECLARE
 BEGIN
     RAISE NOTICE '--- INICIANDO MIGRAÇÃO DOS DADOS ---';
 
-    -- Carga e normalização dos dados. Insere clientes, produtos, pedidos (agrupados) e itens 
-    -- a partir da tabela de staging, respeitando a hierarquia de chaves estrangeiras 
-    -- do modelo relacional e ignorando registros que já existem na base.
-    
     INSERT INTO clientes (cpf, nome, email, telefone)
     SELECT DISTINCT cpf, buyer_name, buyer_email, buyer_phone_number 
     FROM temp_carga WHERE cpf IS NOT NULL AND cpf <> ''
@@ -44,12 +39,8 @@ BEGIN
     FROM temp_carga
     ON CONFLICT (order_item_id) DO NOTHING;
 
-
     RAISE NOTICE '--- INICIANDO REGRA DE NEGÓCIO (ESTOQUE) ---';
 
-    -- Processamento de estoque e avaliação dos pedidos prioritários (maior valor), 
-    -- aplicando rigorosamente a regra de atendimento total ou direcionamento para fila de compras.
-    
     OPEN c_pedidos;
     LOOP
         FETCH c_pedidos INTO v_pedido;
@@ -57,7 +48,6 @@ BEGIN
         
         v_atende_total := TRUE;
         
-        -- Validação prévia de disponibilidade de estoque para todos os itens do pedido atual.
         OPEN c_itens(v_pedido.order_id);
         LOOP
             FETCH c_itens INTO v_item;
@@ -73,8 +63,6 @@ BEGIN
 
         IF v_atende_total THEN
             
-            -- Efetivação do pedido com baixa no estoque e auditoria de movimentação 
-            -- para os pedidos que possuem saldo suficiente em sua totalidade.
             OPEN c_itens(v_pedido.order_id);
             LOOP
                 FETCH c_itens INTO v_item;
@@ -93,8 +81,6 @@ BEGIN
             
         ELSE
             
-            -- Registro de pendência na tabela de compras calculando apenas o déficit 
-            -- de estoque de cada item, marcando o pedido para aguardar reposição do fornecedor.
             OPEN c_itens(v_pedido.order_id);
             LOOP
                 FETCH c_itens INTO v_item;
@@ -116,6 +102,5 @@ BEGIN
     END LOOP;
     CLOSE c_pedidos;
     
-    -- Limpeza da tabela de staging temporária para liberar espaço e preparar para futuras cargas.
     TRUNCATE temp_carga;
 END $$;

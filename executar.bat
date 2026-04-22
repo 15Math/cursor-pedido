@@ -8,7 +8,8 @@ set PORT=5432
 set PATH=%PATH%;C:\Program Files\PostgreSQL\18\bin
     
 :: Caminho dos arquivos SQL (Certifique-se que os nomes estão corretos)
-set SQL_SCHEMA="sql/1_schema.sql"
+set SQL_SCHEMA="sql/0_schema.sql"
+set SQL_INIT="sql/1_inicializa_estoque.sql"
 set SQL_CARGA="sql/2_carga.sql"
 set SQL_PROC="sql/3_processamento.sql"
 set SQL_FORN="sql/4_reposicao_fornecedor.sql"
@@ -23,7 +24,7 @@ echo [1/4] Criando estrutura de tabelas...
 psql -h %HOST% -p %PORT% -U %DB_USER% -d %DB_NAME% -f %SQL_SCHEMA% -q
 
 echo [1.5/4] Inicializando estoque...
-psql -h %HOST% -p %PORT% -U %DB_USER% -d %DB_NAME% -f "sql/0_inicializa_estoque.sql" -q
+psql -h %HOST% -p %PORT% -U %DB_USER% -d %DB_NAME% -f %SQL_INIT% -q
 
 echo [2/4] Carregando arquivo CSV do Marketplace...
 psql -h %HOST% -p %PORT% -U %DB_USER% -d %DB_NAME% -f %SQL_CARGA% -q

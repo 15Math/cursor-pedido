@@ -1,4 +1,4 @@
--- Insere os produtos com o estoque inicial (ajustando os nomes dos SKUs)
+
 INSERT INTO produtos (sku, nome, estoque)
 VALUES 
 ('roupa123rio', 'Camisa', 10),
